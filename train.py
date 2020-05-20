@@ -11,8 +11,8 @@ log_dir = os.path.abspath('./logs')
 best_model_path = os.path.abspath('./model/best.h5')
 current_model_path = os.path.abspath('./model/current.h5')
 csv_log_path = os.path.abspath('./csv_trainig_log.csv')
-embedding_mx_width = 64
-batch_size = 128
+embedding_mx_width = 128
+batch_size = 64
 epoch_num = 100
 
 
@@ -41,14 +41,14 @@ kernels= {}
 kernels[0] = 4
 kernels[1] = 8
 kernels[2] = 16
-input_shape_conv = (512, 64)
+input_shape_conv = (512, 128)
 max_pool_size = 2
 
 input = keras.Input(shape=input_shape_conv)
 convs = []
 
 for conv_num in range(len(kernels)):
-    conv = Conv1D(filters=1,
+    conv = Conv1D(filters=30,
                   kernel_size=kernels[conv_num],
                   activation='relu',
                   input_shape=input_shape_conv,
@@ -59,12 +59,13 @@ for conv_num in range(len(kernels)):
 out = Concatenate(axis=1)(convs)
 
 conv_model = Model(input=input, output=out)
-conv_model.summary()
+#conv_model.summary()
 
 model.add(conv_model)
-model.add(keras.layers.Reshape(target_shape=(754,)))
+#model.add(keras.layers.Reshape(target_shape=(754,)))
+model.add(keras.layers.Reshape(target_shape=(22620,)))
 model.add(Dropout(rate=0.5))
-model.add(Dense(no_of_classes, activation='softmax', kernel_regularizer=keras.regularizers.l2()))
+model.add(Dense(no_of_classes, activation='softmax', kernel_regularizer=keras.regularizers.l2(0.005)))
 
 
 

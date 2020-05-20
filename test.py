@@ -1,8 +1,8 @@
 import keras
-from keras import Model
 import numpy as np
 import os
-import  json
+import json
+import time
 
 test_file = os.path.abspath('./data/test.npz')
 best_model = os.path.abspath('./model/best.h5')
@@ -23,13 +23,18 @@ keras.utils.plot_model(model,model_plot,
                        show_shapes=True,
                        expand_nested=True)
 
+time_start = time.time()
 predictions = model.predict(x_test)
+total_time = time.time() - time_start
+numsumples = len(predictions)
+print('Class of {numsumples:d} samples predicted in\t{time:.2f}s.\t'.format(
+    numsumples=numsumples,time=total_time), end='\n')
 # for x in x_test:
 #     prediction = model(x, training=False, verbose=1)
 #     print(prediction)
-results= []
+results = []
 correct_preds = 0
-for i in range(len(predictions)):
+for i in range(numsumples):
     top_three_pred = np.argpartition(predictions[i], -3)[-3:]
     top_three_pred = np.flip(top_three_pred[np.argsort(predictions[i][top_three_pred])])
     top_three_labels = []
@@ -44,7 +49,7 @@ for i in range(len(predictions)):
         correct_preds += 1
     results.append([top_three_labels_values, correct_result])
 
-corr_percentage = correct_preds / len(predictions)
+corr_percentage = correct_preds / numsumples
 print(corr_percentage)
 
 with open(results_file, 'w') as output:
@@ -52,7 +57,7 @@ with open(results_file, 'w') as output:
         line = ''
         for n in range(len(results[l][0])):
             line = line + results[l][0][n][0] + ': ' + str(results[l][0][n][1]) + ' '
-        line = line +  'Corr: ' + results[l][1] + '\n'
+        line = line + 'Corr: ' + results[l][1] + '\n'
         output.write(line)
 
 
